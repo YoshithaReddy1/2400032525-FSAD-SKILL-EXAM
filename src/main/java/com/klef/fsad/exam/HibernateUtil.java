@@ -1,21 +1,24 @@
 package com.klef.fsad.exam;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import javax.security.auth.login.Configuration;
 
 public class HibernateUtil 
 {
-    private static SessionFactory sessionFactory;
+    private static final SessionFactory sessionFactory;
 
-    static
+    static 
     {
-        sessionFactory = new Configuration()
-                .configure()
-                .addAnnotatedClass(Restaurant.class)
-                .buildSessionFactory();
+        try 
+        {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+        } 
+        catch (Throwable ex) 
+        {
+            throw new ExceptionInInitializerError(ex);
+        }
     }
 
-    public static SessionFactory getSessionFactory()
+    public static SessionFactory getSessionFactory() 
     {
         return sessionFactory;
     }

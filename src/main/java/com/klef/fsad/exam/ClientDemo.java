@@ -3,9 +3,7 @@ package com.klef.fsad.exam;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-
 import java.util.Date;
-import java.util.List;
 
 public class ClientDemo 
 {
@@ -14,44 +12,23 @@ public class ClientDemo
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
 
-        // ---------------- CREATE ----------------
-        Restaurant r = new Restaurant();
-        r.setId(1);
-        r.setName("Paradise");
-        r.setDate(new Date());
-        r.setStatus("Open");
-
+        // I. INSERT RECORD (Persistent Object)
+        Restaurant r = new Restaurant("Food Palace", new Date(), "Open", "Hyderabad");
         session.save(r);
-        System.out.println("Record Inserted");
 
-        // ---------------- READ ----------------
-        Query<Restaurant> readQuery = session.createQuery("from Restaurant", Restaurant.class);
-        List<Restaurant> list = readQuery.list();
+        System.out.println("Record Inserted Successfully");
 
-        for(Restaurant res : list)
-        {
-            System.out.println(res.getId()+" "+res.getName()+" "+res.getStatus());
-        }
+        // II. UPDATE using HQL with Named Parameters
+        String hql = "UPDATE Restaurant SET name = :name, status = :status WHERE id = :id";
+        Query query = session.createQuery(hql);
 
-        // ---------------- UPDATE ----------------
-        String hql = "update Restaurant set name=:name, status=:status where id=:id";
+        query.setParameter("name", "Spicy Hub");
+        query.setParameter("status", "Closed");
+        query.setParameter("id", r.getId());
 
-        Query updateQuery = session.createQuery(hql);
-        updateQuery.setParameter("name","KFC");
-        updateQuery.setParameter("status","Closed");
-        updateQuery.setParameter("id",1);
+        int result = query.executeUpdate();
 
-        updateQuery.executeUpdate();
-        System.out.println("Record Updated");
-
-        // ---------------- DELETE ----------------
-        String deleteHQL = "delete from Restaurant where id=:id";
-
-        Query deleteQuery = session.createQuery(deleteHQL);
-        deleteQuery.setParameter("id",1);
-
-        deleteQuery.executeUpdate();
-        System.out.println("Record Deleted");
+        System.out.println("Rows Updated: " + result);
 
         tx.commit();
         session.close();
